@@ -353,7 +353,9 @@ You have a number of variables and you have to decide which ones to use in your 
 
 ```{r}
 
- card_fraud_features <- card_fraud %>% select(category, amt, is_fraud, hour, age, distance_km)
+ card_fraud_features <- card_fraud %>% 
+  mutate(age_group = ceiling(age/5)*5) %>% 
+  select(category, amt, is_fraud, hour, age_group, distance_km)
 
 ```
 
