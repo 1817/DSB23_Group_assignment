@@ -359,7 +359,11 @@ You have a number of variables and you have to decide which ones to use in your 
 
 ```
 
+we started with 6 variables: category, amount, is_fraud, hour, age, and distance. 
 
+Afterwards we added "city_pop" and "state" seaparately to see if it will improve the model. None of those did.
+
+Then we manipulated "age" into different "age_groups". This improved the xgb model's accuracy. Thus we replaced age with "age_groups
 
 ## Fit your workflows in smaller sample
 
