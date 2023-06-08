@@ -353,7 +353,9 @@ You have a number of variables and you have to decide which ones to use in your 
 
 ```{r}
 
- card_fraud_features <- card_fraud %>% select(category, amt, is_fraud, hour, age, distance_km,city_pop)
+ card_fraud_features <- card_fraud %>% 
+  mutate(age_group = ceiling(age/5)*5) %>% 
+  select(category, amt, is_fraud, hour, age_group, distance_km)
 
 ```
 
@@ -410,7 +412,8 @@ What steps are you going to add to your recipe? Do you need to do any log transf
 ```{r, define_recipe}
 
 fraud_rec <- recipe(is_fraud ~ ., data = card_fraud_train) %>%
-  step_log(amt,city_pop) %>%
+  
+  step_log(amt) %>%
   step_novel(all_nominal(), -all_outcomes()) %>%
   step_dummy(all_nominal(), -all_outcomes()) %>% 
   step_zv(all_numeric(), -all_outcomes())  %>% 
