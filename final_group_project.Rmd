@@ -114,6 +114,8 @@ card_fraud <- card_fraud %>%
 
   )
 
+card_fraud$age <- floor(card_fraud$age)
+
 ```
 
 ## Exploratory Data Analysis (EDA) (REN)
@@ -254,6 +256,22 @@ ggplot(fraud_hour, aes(x = hour, y = fraud_count)) +
        title = "Number of Fraudulent Transactions by Hour of the Day") +
   theme_minimal()
 
+
+```
+```{r}
+#age and fraud
+
+fraud_age <- card_fraud %>% 
+  filter(is_fraud == 1) %>% 
+  group_by(age) %>% 
+  summarise(fraud_count = n(), .groups = "drop")
+
+#plot
+ggplot(fraud_age, aes(x = age, y = fraud_count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(x = "Age", y = "Number of Fraudulent Transactions", 
+       title = "Number of Fraudulent Transactions by age of victim") +
+  theme_minimal()
 
 ```
 
