@@ -63,7 +63,7 @@ card_fraud <- read_csv(here::here("data", "card_fraud.csv")) %>%
     
     # first level is the event in tidymodels, so we need to reorder
     is_fraud = relevel(is_fraud, ref = "1")
-         )
+         ) 
 
 glimpse(card_fraud)
 ```
@@ -98,6 +98,8 @@ card_fraud <- card_fraud %>%
 ) %>% 
   rename(year = trans_year) %>% 
   
+  mutate(age_group = ceiling(age/5)*5) %>% #put age into different age groups
+  
   mutate(
     
     # convert latitude/longitude to radians
@@ -117,6 +119,8 @@ card_fraud <- card_fraud %>%
 card_fraud$age <- floor(card_fraud$age)
 
 ```
+
+
 
 ## Exploratory Data Analysis (EDA) (REN)
 
@@ -393,7 +397,6 @@ You have a number of variables and you have to decide which ones to use in your 
 ```{r}
 
  card_fraud_features <- card_fraud %>% 
-  mutate(age_group = ceiling(age/5)*5) %>% 
   select(category, amt, is_fraud, hour, age_group, distance_km)
 
 ```
@@ -403,6 +406,8 @@ we started with 6 variables: category, amount, is_fraud, hour, age, and distance
 Afterwards we added "city_pop" and "state" seaparately to see if it will improve the model. None of those did.
 
 Then we manipulated "age" into different "age_groups". This improved the xgb model's accuracy. Thus we replaced age with "age_groups
+
+We also tried grouping "hour" into different categories (morning, afternoon, night) too. This did not improve accuracy.
 
 ## Fit your workflows in smaller sample
 
