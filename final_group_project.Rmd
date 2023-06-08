@@ -116,7 +116,7 @@ card_fraud <- card_fraud %>%
 
 ```
 
-## Exploratory Data Analysis (EDA) 
+## Exploratory Data Analysis (EDA) (REN)
 
 You have done some EDA and you can pool together your group's expertise in which variables to use as features.
 You can reuse your EDA from earlier, but we expect at least a few visualisations and/or tables to explore the dataset and identify any useful features.
@@ -131,10 +131,135 @@ Group all variables by type and examine each variable class by class. The datase
 
 Strings are usually not a useful format for classification problems. The strings should be converted to factors, dropped, or otherwise transformed.
 
+```{r}
+#Table that summarizes the number and frequency of fraudulent transactions
+fraud_cases_by_year <- card_fraud %>% 
+  
+  # Filter only fraud cases
+  filter(is_fraud == "1") %>% 
+  
+  # Group by year and summarise fraud case in each year
+  group_by(year) %>% 
+  summarise(count_fraud_cases = n())
+
+fraud_cases_by_year
+```
+```{r}
+#Costs of fraud transaction
+
+# Summarise data
+summary <- card_fraud %>%
+  group_by(year, is_fraud) %>%
+  summarise(total_amt = sum(amt, na.rm = TRUE),
+            .groups = "drop")
+
+# Calculate the yearly total
+yearly_totals <- summary %>%
+  group_by(year) %>%
+  summarise(yearly_total_amt = sum(total_amt),
+            .groups = "drop")
+
+# Join yearly total back to summary
+summary <- summary %>%
+  left_join(yearly_totals, by = "year")
+
+# Calculate the percentage of fraudulent transactions
+summary <- summary %>%
+  mutate(fraud_percentage = ifelse(is_fraud == 1, (total_amt / yearly_total_amt) * 100, 0))
+
+# Print summary
+print(summary)
+
+```
+
+```{r}
+
+#histogram that shows the distribution of amounts charged to credit card, both for legitimate and fraudulent accounts.
+
+card_fraud %>% 
+  
+  # Group by fraud cases and amount and summarise total amount of each case
+  group_by(is_fraud,amt) %>% 
+  summarise(count = n()) %>% 
+  
+  # Plot histogram and splited facet by whether is fraud or not
+  ggplot(aes(x=amt)) +
+  geom_histogram() +
+  labs(x= "Amount charged", y= "# of amount charged") +
+  ggtitle("Distribution of amounts charged to credit card") +
+  facet_wrap((~is_fraud)) 
+
+# Filter out fraudulent transactions
+fraudulent <- card_fraud %>%
+  filter(is_fraud == 1)
+
+legitimate <- card_fraud %>% 
+  filter(is_fraud == 0)
+# Calculate summary statistics
+fraudulent_summary <- fraudulent %>%
+  summarise(Mean = mean(amt, na.rm = TRUE),
+            Median = median(amt, na.rm = TRUE),
+            Min = min(amt, na.rm = TRUE),
+            Max = max(amt, na.rm = TRUE))
+
+legitimate_summary <- legitimate %>%
+  summarise(Mean = mean(amt, na.rm = TRUE),
+            Median = median(amt, na.rm = TRUE),
+            Min = min(amt, na.rm = TRUE),
+            Max = max(amt, na.rm = TRUE))
+
+# Print summary statistics
+print("Fraudulent Transaction Summary:")
+print(fraudulent_summary)
+
+print("Legitimate Transaction Summary:")
+print(legitimate_summary)
+
+```
+```{r}
+#types of purchases that's likely to be fraudulent
+
+fraudulent <- card_fraud %>%
+  filter(is_fraud == 1)
+
+# Calculate % of total fraudulent transactions by category
+fraud_by_category <- fraudulent %>%
+  group_by(category) %>%
+  summarise(total_amt = sum(amt), .groups = "drop") %>%
+  mutate(percent_of_total = (total_amt / sum(total_amt)) * 100) %>%
+  arrange(desc(percent_of_total))
+
+# Plot a bar chart
+ggplot(fraud_by_category, aes(x = reorder(category, percent_of_total), y = percent_of_total)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title = "Fraudulent Transactions by Category", x = "Category", y = "% of Total Fraudulent Transactions")
+```
+```{r}
+#time of day that most fraud happens
+fraud_hour <- card_fraud %>% 
+  filter(is_fraud == 1) %>% 
+  group_by(hour) %>% 
+  summarise(fraud_count = n(), .groups = "drop")
+
+#plot
+ggplot(fraud_hour, aes(x = hour, y = fraud_count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(x = "Hour of the Day", y = "Number of Fraudulent Transactions", 
+       title = "Number of Fraudulent Transactions by Hour of the Day") +
+  theme_minimal()
+
+
+```
+
+
 ***Strings to Factors*** 
 
 -   `category`, Category of Merchant
 -   `job`, Job of Credit Card Holder
+
+
 
 ***Strings to Geospatial Data*** 
 
@@ -168,7 +293,7 @@ The predictors `category` and `job` are transformed into factors.
 
 card_fraud <- card_fraud %>% 
   mutate(category = factor(category),
-         job = factor(job))
+         job = factor(job)) 
 
 ```
 
@@ -188,6 +313,25 @@ Consider each variable and decide whether to keep, transform, or drop it. This i
 ## Which variables to keep in your model?
 
 You have a number of variables and you have to decide which ones to use in your model. For instance, you have the latitude/lognitude of the customer, that of the merchant, the same data in radians, as well as the `distance_km` and `distance_miles`. Do you need them all? 
+
+```{r}
+#city pop against pop
+
+age_pop <- card_fraud %>% 
+  filter(is_fraud == 1) %>% 
+  group_by(age, city_pop) %>% 
+  summarise(fraud_count = n(), .groups = "drop")
+
+#plotting
+ggplot(age_pop, aes(x = age, y = city_pop, size = fraud_count)) +
+  geom_point(alpha = 0.6) +
+  scale_size_continuous(range = c(1, 2)) +
+  labs(x = "Age", y = "City Population", size = "Number of Fraudulent Transactions", 
+       title = "Fraudulent transactions by Age and City Population") +
+  theme_minimal()
+
+```
+
 
 
 ## Fit your workflows in smaller sample
