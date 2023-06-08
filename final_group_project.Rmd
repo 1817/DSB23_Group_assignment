@@ -447,7 +447,43 @@ You should define the following classification models:
 # 2. set the `engine`
 # 3. Set the `mode`:  classification
 
+# Logistic regression
+log_spec <-  logistic_reg() %>%  # model type
+  set_engine(engine = "glm") %>%  # model engine
+  set_mode("classification") # model mode
 
+# Show your model specification
+log_spec
+
+# Decision Tree
+tree_spec <- decision_tree() %>%
+  set_engine(engine = "C5.0") %>%
+  set_mode("classification")
+
+tree_spec
+
+# Random Forest
+library(ranger)
+
+rf_spec <- 
+  rand_forest() %>% 
+  set_engine("ranger", importance = "impurity") %>% 
+  set_mode("classification")
+
+
+# Boosted tree (XGBoost)
+library(xgboost)
+
+xgb_spec <- 
+  boost_tree() %>% 
+  set_engine("xgboost") %>% 
+  set_mode("classification") 
+
+# K-nearest neighbour (k-NN)
+knn_spec <- 
+  nearest_neighbor(neighbors = 4) %>% # we can adjust the number of neighbors 
+  set_engine("kknn") %>% 
+  set_mode("classification") 
 ```
 
 ## Bundle recipe and model with `workflows`
@@ -462,6 +498,26 @@ log_wflow <- # new workflow object
  workflow() %>% # use workflow function
  add_recipe(fraud_rec) %>%   # use the new recipe
  add_model(log_spec)   # add your model spec
+
+tree_wflow <-
+ workflow() %>%
+ add_recipe(fraud_rec) %>% 
+ add_model(tree_spec) 
+
+rf_wflow <-
+ workflow() %>%
+ add_recipe(fraud_rec) %>% 
+ add_model(rf_spec) 
+
+xgb_wflow <-
+ workflow() %>%
+ add_recipe(fraud_rec) %>% 
+ add_model(xgb_spec)
+
+knn_wflow <-
+ workflow() %>%
+ add_recipe(fraud_rec) %>% 
+ add_model(knn_spec)
 
 ```
 
@@ -481,6 +537,7 @@ log_res <- log_wflow %>%
     control = control_resamples(save_pred = TRUE)) 
 time <- toc()
 log_time <- time[[4]]
+
 
 
 ```
