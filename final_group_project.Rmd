@@ -273,7 +273,7 @@ ggplot(fraud_age, aes(x = age, y = fraud_count)) +
        title = "Number of Fraudulent Transactions by age of victim") +
   theme_minimal()
 
-#city pop against pop
+#city pop against age
 
 age_pop <- card_fraud %>% 
   filter(is_fraud == 1) %>% 
@@ -304,6 +304,45 @@ We have plenty of geospatial data as lat/long pairs, so I want to convert city/s
 
 -   `city`, City of Credit Card Holder
 -   `state`, State of Credit Card Holder
+
+```{r}
+#Geospatial data
+#intuition: filter out all frauds
+#turn city locations into lat/long pairs
+#map locations of cities with fraud victims to map
+library(tidygeocoder)
+library(sf)
+library(opencage) # for geocoding addresses
+library(usethis)
+library(hrbrthemes) # hrbrmstr/hrbrthemes
+library(kableExtra)
+library(rnaturalearth)
+library(tmap)
+
+map_fraud_latlong <- card_fraud %>% 
+  filter(is_fraud == 1) %>% 
+  mutate(state_geo = geo(state, method = "osm"))
+
+map_fraud_plot <- map_fraud_latlong %>% 
+  count(state, sort = TRUE) %>% 
+  mutate(address_geo = purrr::map(state, geo, method = "osm")) %>% 
+  unnest_wider(address_geo)
+
+usa <- ne_countries(scale = "medium", returnclass = "sf") %>% 
+  filter(name != "Antarctica") %>% 
+  st_geometry(usa)
+
+ggplot(data = usa) +
+  geom_sf(fill = "#fafafa") + # the first two lines just plot the world shapefile
+  geom_point(data = map_fraud_plot, # then we add points
+             aes(x = long, y = lat),
+             size = 2,
+             colour = "#001e62") +
+  theme_void()
+  
+
+```
+
 
 ##  Exploring factors: how is the compactness of categories?
 
