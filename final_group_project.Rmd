@@ -193,6 +193,13 @@ Consider each variable and decide whether to keep, transform, or drop it. This i
 
 You have a number of variables and you have to decide which ones to use in your model. For instance, you have the latitude/lognitude of the customer, that of the merchant, the same data in radians, as well as the `distance_km` and `distance_miles`. Do you need them all? 
 
+```{r}
+
+ card_fraud_features <- card_fraud %>% select(category, amt, is_fraud, hour, age, distance_km)
+
+```
+
+
 
 ## Fit your workflows in smaller sample
 
@@ -203,7 +210,7 @@ Thus, we will work with a smaller sample of 10% of the values the original datas
 
 ```{r}
 # select a smaller subset
-my_card_fraud <- card_fraud %>% 
+my_card_fraud <- card_fraud_features %>% 
   # select a smaller subset, 10% of the entire dataframe 
   slice_sample(prop = 0.10) 
 ```
@@ -246,12 +253,9 @@ What steps are you going to add to your recipe? Do you need to do any log transf
 
 fraud_rec <- recipe(is_fraud ~ ., data = card_fraud_train) %>%
   
-  select(category, amt, is_fraud, hour, age, distance_km) %>%
-  step_novel(all_nominal_predictors) %>%
-  step_log(amt) %>%
-  step_dummy(5*round(age/5))
-
-
+  step_novel(all_nominal_predictors()) %>%
+  step_log(amt) #%>%
+  #step_dummy(5*round(age/5))
 
 ```
 
