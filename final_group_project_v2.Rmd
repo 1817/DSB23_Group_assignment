@@ -353,11 +353,15 @@ You have a number of variables and you have to decide which ones to use in your 
 
 ```{r}
 
- card_fraud_features <- card_fraud %>% select(category, amt, is_fraud, hour, age, distance_km,city_pop)
+ card_fraud_features <- card_fraud %>% select(category, amt, is_fraud, hour, age, distance_km)
 
 ```
 
+We start the process by selecting "category", "amount of transaction", "if the transaction is fraudulent", "time of the day", and "distance in kms". 
 
+We added "city population" in the second round to find out if it will improve the accuracy of the model. We found that adding city population does not increases the accuracy of the model, hence we've removed the variable.
+
+We added "state" for the third round. Performance is worse as well. Thus we removed it from the end model.
 
 ## Fit your workflows in smaller sample
 
