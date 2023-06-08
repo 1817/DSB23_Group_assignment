@@ -119,7 +119,7 @@ card_fraud <- card_fraud %>%
 ## Exploratory Data Analysis (EDA) 
 
 You have done some EDA and you can pool together your group's expertise in which variables to use as features.
-You can reuse your EDA from earlier, but we expect at least a few visualisations and/or tables to explore teh dataset and identify any useful features.
+You can reuse your EDA from earlier, but we expect at least a few visualizations and/or tables to explore the dataset and identify any useful features.
 
 Group all variables by type and examine each variable class by class. The dataset has the following types of variables:
 
@@ -241,8 +241,11 @@ What steps are you going to add to your recipe? Do you need to do any log transf
 ```{r, define_recipe}
 
 fraud_rec <- recipe(is_fraud ~ ., data = card_fraud_train) %>%
-
-
+  
+  select(category, amt, is_fraud, hour, age, distance_km) %>%
+  step_novel(all_nominal_predictors) %>%
+  step_log(amt) %>%
+  step_dummy(5*round(age/5))
 
 
 
