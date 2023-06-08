@@ -538,6 +538,49 @@ log_res <- log_wflow %>%
 time <- toc()
 log_time <- time[[4]]
 
+tic()
+tree_res <- tree_wflow %>% 
+  fit_resamples(
+    resamples = cv_folds, 
+    metrics = metric_set(
+      recall, precision, f_meas, accuracy,
+      kap, roc_auc, sens, spec),
+    control = control_resamples(save_pred = TRUE)) 
+time <- toc()
+tree_time <- time[[4]]
+
+tic()
+rf_res <- rf_wflow %>% 
+  fit_resamples(
+    resamples = cv_folds, 
+    metrics = metric_set(
+      recall, precision, f_meas, accuracy,
+      kap, roc_auc, sens, spec),
+    control = control_resamples(save_pred = TRUE)) 
+time <- toc()
+rf_time <- time[[4]]
+
+tic()
+xgb_res <- xgb_wflow %>% 
+  fit_resamples(
+    resamples = cv_folds, 
+    metrics = metric_set(
+      recall, precision, f_meas, accuracy,
+      kap, roc_auc, sens, spec),
+    control = control_resamples(save_pred = TRUE)) 
+time <- toc()
+xgb_time <- time[[4]]
+
+tic()
+knn_res <- knn_wflow %>% 
+  fit_resamples(
+    resamples = cv_folds, 
+    metrics = metric_set(
+      recall, precision, f_meas, accuracy,
+      kap, roc_auc, sens, spec),
+    control = control_resamples(save_pred = TRUE)) 
+time <- toc()
+knn_time <- time[[4]]
 
 
 ```
